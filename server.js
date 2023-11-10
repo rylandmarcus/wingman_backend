@@ -8,14 +8,23 @@ const morgan = require('morgan')
 const PORT = process.env.PORT
 const secret = process.env.SECRET
 const session = require('express-session')
+const userController = require('./controllers/userController')
+const authController = require('./controllers/authController')
 
-app.use(cors())
+const corsOptions = {
+    origin: 'http://localhost:3000',
+    credentials: true,
+    optionsSuccessStatus: 200
+}
+
+app.use(cors(corsOptions))
 app.use(morgan('tiny'))
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(session({secret: secret}))
 
-app.use('/auth', require('./controllers/authController'))
+app.use('/auth', authController)
+app.use('/users', userController)
 
 const io = new Server(server, {
     cors: {
