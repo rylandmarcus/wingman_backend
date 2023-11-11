@@ -30,5 +30,10 @@ router.get('/:id', async (req, res)=>{
     res.json(user)
 })
 
+router.put('/:id', async (req, res)=>{
+    res.json(
+        await User.findByIdAndUpdate(req.params.id, req.body, {new: true})
+    )
+})
 
 module.exports = router
