@@ -38,19 +38,28 @@ router.put('/:id', async (req, res)=>{
 
 router.get('/matches/:id', async (req, res)=>{
     const user = await User.findById(req.params.id)
+    let dontInclude = user.likes.concat(user.dislikes)
+    dontInclude.push(req.params.id)
     let potentialMatches
     if (user.interestedIn.length == 1){
-        potentialMatches = await User.find({_id: {$nin: req.params.id}}).where('gender').equals(user.interestedIn[0])
+        potentialMatches = await User.find().where('_id').nin(dontInclude).where('gender').equals(user.interestedIn[0])
+        // potentialMatches = await User.find({_id: {$nin: req.params.id}}).where('gender').equals(user.interestedIn[0])
     } else if (user.interestedIn.length == 2){
-        potentialMatches = await User.find({_id: {$nin: req.params.id}}).where('gender').or([{gender: user.interestedIn[0]}, {gender: user.interestedIn[1]}])
+        potentialMatches = await User.find().where('_id').nin(dontInclude).where('gender').or([{gender: user.interestedIn[0]}, {gender: user.interestedIn[1]}])
     } else if (user.interestedIn.length == 3){
-        potentialMatches = await User.find({_id: {$nin: req.params.id}})
+        potentialMatches = await User.find().where('_id').nin(dontInclude)
     }
     res.json(potentialMatches)
 })
 
-router.put('/like/:id', async (req, res)=>{
-    //look up how to use two params? like on the backend. on front end you put the reacted to ID in the form action and then use token to supply the other
+router.put('/:userid/like/:likedid', async (req, res)=>{
+    const user = await User.findByIdAndUpdate(req.params.userid, {$push: {likes: req.params.likedid}}, {new: true})
+    res.json(user)
+})
+
+router.put('/:userid/dislike/:dislikedid', async (req, res)=>{
+    const user = await User.findByIdAndUpdate(req.params.userid, {$push: {dislikes: req.params.dislikedid}}, {new: true})
+    res.json(user)
 })
 
 module.exports = router
