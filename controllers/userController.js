@@ -3,6 +3,7 @@ const express = require('express')
 const router = express.Router()
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const Chat = require('../models/chat')
 
 router.get('/', async (req, res)=>{
     const users = await User.find({})
@@ -36,7 +37,7 @@ router.put('/:id', async (req, res)=>{
     )
 })
 
-router.get('/matches/:id', async (req, res)=>{
+router.get('/potentialmatches/:id', async (req, res)=>{
     const user = await User.findById(req.params.id)
     let dontInclude = user.likes.concat(user.dislikes)
     dontInclude.push(req.params.id)
@@ -53,6 +54,15 @@ router.get('/matches/:id', async (req, res)=>{
 })
 
 router.put('/:userid/like/:likedid', async (req, res)=>{
+    const likedUser = await User.findById(req.params.likedid)
+    if (likedUser.likes.includes(req.params.userid)){
+        console.log('match')
+        await Chat.create({users: [req.params.userid, req.params.likedid]})
+    }
+    // if (req.body.match){
+    //     console.log('match')
+    //     await Chat.create({users: [req.params.userid, req.params.likedid]})
+    // }
     const user = await User.findByIdAndUpdate(req.params.userid, {$push: {likes: req.params.likedid}}, {new: true})
     res.json(user)
 })
@@ -60,6 +70,11 @@ router.put('/:userid/like/:likedid', async (req, res)=>{
 router.put('/:userid/dislike/:dislikedid', async (req, res)=>{
     const user = await User.findByIdAndUpdate(req.params.userid, {$push: {dislikes: req.params.dislikedid}}, {new: true})
     res.json(user)
+})
+
+router.get('/:userid/matches', async (req, res)=>{
+    const user = await User.findById(req.params.userid).populate('likes')
+    res.json(user.likes.filter(like => like.likes.includes(req.params.userid)))
 })
 
 module.exports = router

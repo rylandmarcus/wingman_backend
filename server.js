@@ -10,6 +10,7 @@ const secret = process.env.SECRET
 const session = require('express-session')
 const userController = require('./controllers/userController')
 const authController = require('./controllers/authController')
+const chatController = require('./controllers/chatController')
 
 const corsOptions = {
     origin: 'http://localhost:3000',
@@ -25,6 +26,7 @@ app.use(session({secret: secret}))
 
 app.use('/auth', authController)
 app.use('/users', userController)
+app.use('/chats', chatController)
 
 const io = new Server(server, {
     cors: {
