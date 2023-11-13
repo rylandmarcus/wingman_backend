@@ -18,5 +18,12 @@ router.get('/:id', async (req, res)=>{
     res.json(chats)
 })
 
+router.get('/:userid/chat/:chatid', async (req, res)=>{
+    let chat = await Chat.findById(req.params.chatid)  
+    chat.users.splice(chat.users.indexOf(req.params.userid),1)
+    await chat.populate('users')
+    res.json(chat)
+})
+
 
 module.exports = router
