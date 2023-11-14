@@ -11,6 +11,7 @@ const session = require('express-session')
 const userController = require('./controllers/userController')
 const authController = require('./controllers/authController')
 const chatController = require('./controllers/chatController')
+const Chat = require('./models/chat')
 
 const corsOptions = {
     origin: 'http://localhost:3000',
@@ -36,9 +37,23 @@ const io = new Server(server, {
 
 io.on('connection', (socket)=>{
     console.log('a user connected');
-    socket.on('message', (msg)=>{
+    socket.on('message', (msg, chatId, userid)=>{
         console.log('message: '+msg);
-        io.emit('receive_message', msg)
+        console.log('chatId: '+chatId);
+        async function sendMessage(){
+            await Chat.findByIdAndUpdate(chatId, {$push: {messages: msg, authors: userid}}, {new: true})
+        }
+        sendMessage()
+        io.to(chatId).emit('receive_message', msg, userid)
+    })
+    socket.on('typing', (chatId, userid)=>{
+        socket.broadcast.to(chatId).emit('receive_typing', userid)
+    })
+    socket.on('leaveChatRooms', (room)=>{
+        socket.leave(room)
+    })
+    socket.on('joinChatRoom', (room)=>{
+        socket.join(room)
     })
     socket.on('disconnect', ()=>{
         console.log('user disconnected');
