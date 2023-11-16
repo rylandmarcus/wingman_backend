@@ -78,6 +78,7 @@ router.get('/:userid/matches', async (req, res)=>{
 })
 
 router.delete('/:userid/matches/:matchid', async (req, res)=>{
+    console.log(req.params)
     const user = await User.findByIdAndUpdate(req.params.userid, {$pull: {likes: req.params.matchid}}, {new: true})
     const chat = await Chat.findOneAndDelete({users: [req.params.userid, req.params.matchid]})
     res.json(user)
