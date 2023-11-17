@@ -39,6 +39,18 @@ const io = new Server(server, {
 
 io.on('connection', (socket)=>{
     console.log('a user connected');
+    socket.on('loggedIn', (token)=>{
+        console.log('logged in', token);
+        socket.join(token)
+    })
+    socket.on('notify', (to, type)=>{
+        if (type=='message'){
+            socket.broadcast.to(to).emit('receiveNotification', type)
+        }
+        if (type=='match'){
+            io.to(to).emit('receiveNotification', type)
+        }
+    })
     socket.on('message', (msg, chatId, userid)=>{
         console.log('message: '+msg);
         console.log('chatId: '+chatId);
