@@ -11,22 +11,6 @@ router.get('/', async (req, res)=>{
 })
 
 router.get('/:id', async (req, res)=>{
-    // const token = req.session.token
-    // const userid = jwt.verify(token, 'your-secret-key', (err, decoded) => {
-    //     if (err) {
-    //       // Handle invalid token
-    //       return res.status(401).json({ error: 'Invalid token' });
-    //     }
-      
-    //     const userId = decoded.userid;
-    //     // Now you have the user ID, and you can use it in your logic
-    //     console.log(`User ID: ${userId}`);
-      
-    //     // Continue with your route logic here
-    //     return userId.toHexString();
-    //   });
-    // const user = await User.findById(userid)
-    // const user = await User.findById(req.session.token)
     const user = await User.findById(req.params.id)
     res.json(user)
 })
@@ -44,7 +28,6 @@ router.get('/potentialmatches/:id', async (req, res)=>{
     let potentialMatches
     if (user.interestedIn.length == 1){
         potentialMatches = await User.find().where('_id').nin(dontInclude).where('gender').equals(user.interestedIn[0])
-        // potentialMatches = await User.find({_id: {$nin: req.params.id}}).where('gender').equals(user.interestedIn[0])
     } else if (user.interestedIn.length == 2){
         potentialMatches = await User.find().where('_id').nin(dontInclude).where('gender').or([{gender: user.interestedIn[0]}, {gender: user.interestedIn[1]}])
     } else if (user.interestedIn.length == 3){
@@ -78,7 +61,6 @@ router.get('/:userid/matches', async (req, res)=>{
 })
 
 router.delete('/:userid/matches/:matchid', async (req, res)=>{
-    console.log(req.params)
     const user = await User.findByIdAndUpdate(req.params.userid, {$pull: {likes: req.params.matchid}}, {new: true})
     const chat = await Chat.findOneAndDelete({users: [req.params.userid, req.params.matchid]})
     res.json(user)

@@ -15,7 +15,6 @@ const Chat = require('./models/chat')
 
 const corsOptions = {
     origin: process.env.FRONTEND_URL,
-    // origin: 'http://localhost:3000',
     credentials: true,
     optionsSuccessStatus: 200
 }
@@ -33,7 +32,6 @@ app.use('/chats', chatController)
 const io = new Server(server, {
     cors: {
         origin: process.env.FRONTEND_URL,
-        // origin: 'http://localhost:3000'
     }
 })
 
