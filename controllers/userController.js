@@ -63,7 +63,7 @@ router.get('/:userid/matches', async (req, res)=>{
 router.delete('/:userid/matches/:matchid', async (req, res)=>{
     const user = await User.findByIdAndUpdate(req.params.userid, {$pull: {likes: req.params.matchid}}, {new: true})
     const chat = await Chat.findOneAndDelete({users: [req.params.userid, req.params.matchid]})
-    res.json(user)
+    res.json(chat&&user)
 })
 
 module.exports = router
